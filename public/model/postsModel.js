@@ -1,9 +1,13 @@
-const express= require('express');
+const express = require('express');
 const app = express();
+const axios = require('axios');
 const posts = [];
-axios.get(`https://my-json-server.typicode.com/amare53/twiterdb/comments`)
-.then(res => {
-    posts=(res.data);
+app.get('/posts', (req, res) => {
+    axios.get(`https://my-json-server.typicode.com/amare53/twiterdb/posts`)
+        .then(response => {
+            posts = res.json(response.data)
+        })
 })
+
 
 module.exports = posts
