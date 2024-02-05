@@ -1,7 +1,7 @@
 
 const express = require('express');
-const app = express();
-const routes = app.routes();
-routes.get('/', function(req, res) {
-  res.send('Hello World!');
-});
+const router = express.Router();
+const PostsGet = require('../controller/postsController.js')
+router.get('', PostsGet)
+
+module.exports = router
