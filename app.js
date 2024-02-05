@@ -1,8 +1,8 @@
 const express = require('express')
 const app = express()
-const router = require('./public/routes/postsRoute.js')
 
-app.use('/', router)
+app.use(express.json());
+app.use('/posts', require('./public/routes/postsRoute.js'))
 
 app.listen(3000, () => {
   console.log('Example app listening on port 3000!')
