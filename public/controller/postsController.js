@@ -16,18 +16,8 @@ const PostsPost = (req, res) => {
     const thingObject = req.file?{
         imageUrl:`${req.protocol}://${req.get('host')}/images/${req.file.filename}`
       }:req.body
-    //req.file ? req.file.filename//req.protocol//${req.get('host')}/images/${req.file.filename}
-    //   {
-    //     ...JSON.parse(req.body.thing),
-    //     imageUrl: ${req.protocol}://${req.get('host')}/images/${req.file.filename}
-    //   } : { ...req.body };
-    // Thing.updateOne({ _id: req.params.id }, { ...thingObject, _id: req.params.id })
-    //   .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-    //   .catch(error => res.status(400).json({ error }));
-
-    res.json(thingObject)
-    // posts.push(post)
-    // res.status(201).json(posts)
+    posts.push(post)
+    res.status(201).json(posts)
 }
 
 const PostsGetId = (req, res) => {
