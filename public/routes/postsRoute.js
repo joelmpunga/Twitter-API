@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const PostsGet = require('../controller/postsController.js')
-const PostsPost = require('../controller/postsController.js')
-const PostsPostId = require('../controller/postsController.js')
-const PostsGetId = require('../controller/postsController.js')
-const PostsPutId = require('../controller/postsController.js')
-const PostsDeleteId = require('../controller/postsController.js')
-router.post('/:id',PostsPostId)
-router.get('/:id',PostsGetId)
-router.get('', PostsGet)
-router.post('',PostsPost)
-router.put('/:id',PostsPutId)
-router.delete('/:id',PostsDeleteId)
+const controllerPost=require('../controller/postsController.js')
+const multer = require('../middleware/multer-config-middleware');
+router.get('/:id',controllerPost.PostsGetId)
+router.get('', controllerPost.PostsGet)
+router.post('',multer,controllerPost.PostsPost)
+router.put('/:id',multer,controllerPost.PostsPutId)
+router.delete('/:id',controllerPost.PostsDeleteId)
+router.put('/like/:id',controllerPost.PostsLikesId)
+router.put('/repost/:id',controllerPost.PostsRepostsId)
 module.exports = router
