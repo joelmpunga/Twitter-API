@@ -1,7 +1,7 @@
 
 const posts = require('../model/postsModel');
 const { v4: uuidv4 } = require('uuid')
-const PostsGet = (req, res) => {
+const getAll = (req, res) => {
     res.status(200).json(posts)
 }
 
@@ -28,7 +28,7 @@ const getOneById = (req, res) => {
     res.json(post)
 }
 
-const PostsPutId = (req, res) => {
+const update = (req, res) => {
     const id = Number(req.params.id)
     let existingPostId = posts.findIndex((posts => posts.id === id));
     let post = (req.body)
@@ -40,7 +40,7 @@ const PostsPutId = (req, res) => {
     res.status(200).json(posts);
 }
 
-const PostsLikesId = (req, res) => {
+const like = (req, res) => {
     const id = Number(req.params.id)
     let existingPostId = posts.findIndex((posts => posts.id === id));
     if (existingPostId === (-1)) {
@@ -50,7 +50,7 @@ const PostsLikesId = (req, res) => {
     res.status(200).json(posts);
 }
 
-const PostsRepostsId = (req, res) => {
+const repost = (req, res) => {
     const id = Number(req.params.id)
     let existingPostId = posts.findIndex((posts => posts.id === id));
     if (existingPostId === (-1)) {
@@ -60,7 +60,7 @@ const PostsRepostsId = (req, res) => {
     res.status(200).json(posts);
 }
 
-const PostsDeleteId = (req, res) => {
+const deleteOneById = (req, res) => {
     const id = Number(req.params.id)
     let existingPostId = posts.findIndex((posts => posts.id === id));
     if (existingPostId == (-1)) {
@@ -70,4 +70,4 @@ const PostsDeleteId = (req, res) => {
     res.status(200).json(posts);
 }
 
-module.exports = { PostsGet, getOneById, save, PostsPutId, PostsDeleteId, PostsLikesId, PostsRepostsId }
+module.exports = { getAll, getOneById, save, update, deleteOneById, like, repost }
