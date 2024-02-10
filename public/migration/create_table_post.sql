@@ -1,0 +1,1 @@
+CREATE TABLE post (id VARCHAR(20) PRIMARY KEY, title VARCHAR(255),body VARCHAR(255),url VARCHAR(255),thumbnailsUrl VARCHAR(255), like INT,repost INT,userId INT ADD CONSTRAINT Foreign Key (post.userId) REFERENCES (user.id));
