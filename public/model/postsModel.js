@@ -36,5 +36,14 @@ const posts = [{
     "like": 0,
     "repost": 0,
     "id": "49969127-22ea-4f59-acae-40ddb94899f9"
+},{
+    "userId": 4,
+    "title": "mon titre",
+    "body": "mon body",
+    "url": "https://via.placeholder.com/600/92c952",
+    "thumbnailsUrl": "https://via.placeholder.com/150/92c952",
+    "like": 0,
+    "repost": 0,
+    "id": "302f1548-b095-499d-b394-5ade011c8562"
 }];
 module.exports = posts
