@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
         callback(null, './public/images');
     },
     filename: (req, file, callback) => {
-        const name = file.split(' ').join('_');
+        const name = file;
         const ext = MIME_TYPES[file.mimetype];
         callback(null, name + Date.now() + '.' + ext);
     }

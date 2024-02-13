@@ -1,4 +1,5 @@
 const posts = require('../model/postsModel');
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid')
 const {file} = require('multer')
 const getAll = (req, res) => {
