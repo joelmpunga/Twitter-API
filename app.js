@@ -7,6 +7,7 @@ const port = process.env.PORT || 3000
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/posts', require('./public/routes/postsRoute.js'))
+app.use('/users', require('./public/routes/usersRoute.js'))
 // const crypted = require('crypto').randomBytes(64).toString('hex')
 // console.log(crypted);
 // function isLogin(req, res, next) {
@@ -20,5 +21,5 @@ app.use('/posts', require('./public/routes/postsRoute.js'))
 
 // app.use(isLogin);
 app.listen(port, () => {
-  console.log('Example app listening on port',port)
+  console.log('app listening on port',port)
 })

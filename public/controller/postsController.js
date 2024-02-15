@@ -5,6 +5,8 @@ const {file} = require('multer')
 const getAll = (req, res) => {
     res.status(200).json(posts)
 }
+
+
 const save = (req, res) => {
     const post = req.body
     const id = uuidv4()
