@@ -1,5 +1,7 @@
 const express = require('express')
 const jwt = require('jsonwebtoken')
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 const app = express()
 const dotenv = require('dotenv');
 dotenv.config();

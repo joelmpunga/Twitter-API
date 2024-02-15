@@ -18,6 +18,7 @@ model Posts {
   thumbnailsUrl String
   like          Int    @default(0)
   repost        Int    @default(0)
+  date          DateTime    @default(now())
 }
 
 model Users {
@@ -28,7 +29,7 @@ model Users {
   password        String   @unique
   profil          String?
   thumbnailProfil String?
-  joined          DateTime @default(DateTime.now())
+  joined          DateTime @default(now())
 }
 
 model Comments {
@@ -38,4 +39,5 @@ model Comments {
   body   String
   postId Int
   idUser Int
+  dateCreated DateTime @default(now())
 }
