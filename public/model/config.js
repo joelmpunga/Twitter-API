@@ -1,7 +1,7 @@
 const host = "localhost";
-const user = "postgres";
-const password = "<PASSWORD>";
-const database = "postgre";
+const user = "apitwitter";
+const password = "Joel&twitter";
+const database = "apitwitter";
 const port = 5432;
 
 module.exports = {host, port, user, password, database}
