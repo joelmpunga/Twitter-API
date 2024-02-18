@@ -1,7 +1,6 @@
 const comments = {
     "postId": 1,
+    "userId":2,
     "id": 1,
-    "name": "id labore ex et quam laborum",
-    "email": "Eliseo@gardner.biz",
-    "body": "",
+    "text": "id labore ex et quam laborum"
 }
