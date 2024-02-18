@@ -31,17 +31,17 @@ async function createUser() {
       username: 'doe24',
       password: 'john1234',
       profil: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
-      thumbnailProfil: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png'
     }
   }
   )
   console.log(users);
 }
 
-async function createPost() {
+async function createPost(idUser) {
   const posts = await prisma.users.create({
     data: {
-      userId: users.Int(users.id),
+      //idUser doit etre remplacé par la vraie valeur
+      userId: idUser,
       text: "Hello everyone, i want to explain to you my main ideas",
       image: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
     }
@@ -50,22 +50,52 @@ async function createPost() {
   console.log(posts);
 }
 
-async function createComment() {
+async function createComment(idPost, idUser) {
   const comments = await prisma.users.create({
     data: {
-      userId: users.Int(users.id),
+      idUser: idUser,
+      idPost: idPost,
       text: "Hello everyone, i want to explain to you my main ideas",
-      url: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
-      thumbnailsUrl: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
     }
   }
   )
   console.log(comments);
 }
 
-createUser().then(console.log)
-createPost().then(console.log)
-createComment().then(console.log)
+// createUser().then(console.log)
+// createPost(idUser).then(console.log)
+// createComment(idPost,idUser).then(console.log)
+
+const getAllUsers = await prisma.users.findMany();
+const getAllPosts = await prisma.posts.findMany();
+const getAllComments = await prisma.comments.findMany();
+
+async function getOneUser(idUser) {
+  const getOne = await prisma.users.findUnique({
+    where: {
+      id: idUser
+    }
+  })
+  console.log(getOneUser);
+}
+
+async function getOnePost(idPost) {
+  const getOne = await prisma.users.findUnique({
+    where: {
+      id: idUser
+    }
+  })
+  console.log(getOnePost);
+}
+
+async function getOneComment(idComment) {
+  const getOne = await prisma.users.findUnique({
+    where: {
+      id: idComment
+    }
+  })
+  console.log(getOneComment);
+}
 
 app.listen(port, () => {
   console.log('app listening on port', port)
