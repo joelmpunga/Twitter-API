@@ -47,6 +47,17 @@ const like = (req, res) => {
     posts[postId].like += 1
     res.status(200).json(posts);
 }
+
+const delike = (req, res) => {
+    const id = req.params.id
+    let postId = posts.findIndex((posts => posts.id === id));
+    if (postId === (-1)) {
+        return res.status(400).send('Post to delike not found');
+    }
+    posts[postId].like -= 1
+    res.status(200).json(posts);
+}
+
 const repost = (req, res) => {
     const id = req.params.id
     let postId = posts.findIndex((posts => posts.id === id));
