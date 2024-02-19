@@ -1,5 +1,3 @@
-
-
 async function createPost(idUser) {
     const users = await prisma.users.create({
         data: {
@@ -12,24 +10,17 @@ async function createPost(idUser) {
     console.log(users);
 }
 
-
-
-// createPost(idUser).then(console.log).catch((e)=>{
-//   throw e;
-// })
-// .finally(async ()=>{
-//   await prisma.$disconnect();
-// })
-
+createPost(idUser).then(console.log).catch((e)=>{
+  throw e;
+})
+.finally(async ()=>{
+  await prisma.$disconnect();
+})
 
 async function getAllPosts() {
     const getPosts = await prisma.posts.findMany();
     console.log(getPosts);
 }
-
-
-
-
 
 async function getOnePost(idPost) {
     const getOne = await prisma.posts.findUnique({
@@ -111,4 +102,5 @@ const posts = [{
     "repost": 0,
     "id": "302f1548-b095-499d-b394-5ade011c8562"
 }];
+
 module.exports = posts
