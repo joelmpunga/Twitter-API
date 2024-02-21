@@ -1,11 +1,15 @@
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
+const session = require('express-session')
+const express = require('express')
+
+const app = express()
 
 async function getOneUser(idUser) {
-    const getOne = await prisma.users.findUnique({
+    const getOne = await prisma.users.findFirst({
         where: {
-            id: idUser
+            id: idUser,
         }
     }).then()
 }
@@ -16,7 +20,7 @@ const verifPassword  = (password,hash) => {
     });
 }
 async function userConnexion(username, password) {
-    //const hash = await getOneUser()
+    const hash = await getOneUser()
     verifPassword (password,hash)
     const getOne = await prisma.users.findUnique({
         where: {

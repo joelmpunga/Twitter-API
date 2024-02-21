@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
-const { getOneUser, getAllUsers,createUser} = require('../model/usersModel');
+const { getOneUser, getAllUsers, createUser } = require('../model/usersModel');
 const { json } = require('express');
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
+const session = require('express-session')
+const express = require('express')
 let users = getAllUsers()
 const dotenv = require('dotenv');
 dotenv.config();
@@ -28,8 +30,15 @@ function generateTokens(username) {
 }
 
 const connexion = (req, res) => {
-    const token = generateTokens({ username: req.body.username, password: req.body.password });
-    res.json(token);
+    const token = generateTokens({ username: req.body.username, password: req.body.password })
+    req.session.regenerate(function (err) {
+        if (err) next(err)
+        req.session.user = req.body.user
+        req.session.save(function (err) {
+            if (err) return next(err)
+            res.status(200).json(req.session.user +" est le token est "+token)
+        })
+    })
 }
 
 const authenticateToken = (req, res, next) => {
@@ -45,4 +54,4 @@ const authenticateToken = (req, res, next) => {
     })
 }
 
-module.exports = { generateTokens, connexion, authenticateToken, getAll,create }
+module.exports = { generateTokens, connexion, authenticateToken, getAll, create }
