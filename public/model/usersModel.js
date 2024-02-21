@@ -1,18 +1,52 @@
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+const bcrypt = require('bcrypt');
+
 async function getOneUser(idUser) {
     const getOne = await prisma.users.findUnique({
         where: {
             id: idUser
         }
+    }).then()
+}
+
+const verifPassword  = (password,hash) => {
+    bcrypt.compare(password, hash, function (err,res){
+        console.log(res)
+    });
+}
+async function userConnexion(username, password) {
+    //const hash = await getOneUser()
+    verifPassword (password,hash)
+    const getOne = await prisma.users.findUnique({
+        where: {
+            username: username,
+            password: password,
+        }
     })
-    console.log(getOne);
+    return getOne
 }
 
 async function getAllUsers() {
     const getUsers = await prisma.users.findMany();
-    console.log(getUsers);
+    return getUsers;
 }
 
+const username="doe24";
+const password="john1234";
+const User = userConnexion(username,password).then().catch((e)=>{
+      throw e;
+    })
+    .finally(async ()=>{
+      await prisma.$disconnect();
+    });
+
 async function createUser() {
+    bcrypt.genSalt (10, function (err, salt) {
+        bcrypt.hash("john1234", salt, function (err, hash) {
+            console.log(hash);
+        });
+    })
     const users = await prisma.users.create({
         data: {
             name: 'John Doe',
@@ -43,4 +77,4 @@ const users = {
     "Joined": "Joined October 2011"
 }
 
-module.exports = { users }
+module.exports = { getOneUser, getAllUsers,createUser,userConnexion,User}

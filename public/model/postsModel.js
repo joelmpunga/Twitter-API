@@ -1,34 +1,38 @@
-async function createPost(idUser) {
-    const users = await prisma.users.create({
+const { PrismaClient } = require('@prisma/client');
+const { User } = require('./usersModel');
+const prisma = new PrismaClient()
+//cet ID,username, password viennent de la base de donnees et de l'utilisateur qui est conncté
+//console.log(User.id);
+async function createPost(idUser, idPost) {
+    const postCreated = await prisma.posts.create({
         data: {
-            userId: idUser,
+            id: idPost,
             text: "Hello everyone, i want to explain to you my main ideas",
             image: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
+            users:{
+                connect:{
+                    id:idUser
+                }
+            }
         }
     }
     )
-    console.log(users);
+    return postCreated
 }
 
-createPost(idUser).then(console.log).catch((e)=>{
-  throw e;
-})
-.finally(async ()=>{
-  await prisma.$disconnect();
-})
+//createPost(idUser).then(console.log)
 
-async function getAllPosts() {
-    const getPosts = await prisma.posts.findMany();
-    console.log(getPosts);
+async function getAllPosts () {
+    console.log("GET ALL AVANT")
+    return getPosts
 }
-
 async function getOnePost(idPost) {
     const getOne = await prisma.posts.findUnique({
         where: {
             id: idUser
         }
     })
-    console.log(getOne);
+    return getOne
 }
 
 async function modifyPost(idPost) {
@@ -43,7 +47,7 @@ async function modifyPost(idPost) {
         }
     }
     )
-    console.log(posts);
+    return posts
 }
 
 async function deleteOnePost(idPost) {
@@ -52,7 +56,7 @@ async function deleteOnePost(idPost) {
             id: idPost
         }
     })
-    console.log(deleteOneById);
+    return deleteOneById
 }
 // const postGre = require('pg')
 
@@ -92,7 +96,8 @@ const posts = [{
     "like": 0,
     "repost": 0,
     "id": "49969127-22ea-4f59-acae-40ddb94899f9"
-}, {
+},
+{
     "userId": 4,
     "title": "mon titre",
     "body": "mon body",
@@ -102,5 +107,4 @@ const posts = [{
     "repost": 0,
     "id": "302f1548-b095-499d-b394-5ade011c8562"
 }];
-
-module.exports = posts
+module.exports = { createPost, getAllPosts, getOnePost, modifyPost, deleteOnePost}

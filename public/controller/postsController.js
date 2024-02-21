@@ -1,13 +1,15 @@
-const posts = require('../model/postsModel');
+const { createPost, getAllPosts, getOnePost, modifyPost, deleteOnePost } = require('../model/postsModel');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid')
-const {file} = require('multer')
+const { file } = require('multer')
+const { PrismaClient } = require('@prisma/client');
+const { response } = require('express');
+const prisma = new PrismaClient()
 
-
-const getAll = (req, res) => {
-    res.status(200).json(posts)
+const getAll = async (req, res) => {
+    const getPosts = await prisma.posts.findMany().then()
+    res.json(getPosts)
 }
-
 
 const save = (req, res) => {
     const post = req.body
@@ -15,25 +17,38 @@ const save = (req, res) => {
     post.id = id
     post.like = 0
     post.repost = 0
-    if (post.title.length < 3 || post.body.length < 3 || post.url.match(/[\z]/) || post.thumbnailsUrl.match(/[\z]/)) {
-        return res.status(400).send('Post not  ');
-    }
-    const thingObject = req.file ? {
-        imageUrl: `../images/${req.file.filename}`
-    } : req.body
+    post.userId = req.body.userId
+    post.text = req.body.text
+    post.image = req.body.image
+    //idUser vaut 1 cette données doit changer
+    createPost(1, id).catch((e) => {
+        throw e;
+    })
+        .finally(async () => {
+            await prisma.$disconnect();
+        })
+    getAll()
+    res.status(201).json(posts)
+    // if (post.title.length < 3 || post.body.length < 3 || post.url.match(/[\z]/) || post.thumbnailsUrl.match(/[\z]/)) {
+    //     return res.status(400).send('Post not  ');
+    // }
+    // const thingObject = req.file ? {
+    //     imageUrl: `../images/${req.file.filename}`
+    // } : req.body
     //posts.push(post)
-    res.status(201).json(thingObject)
+    //res.status(201).json(thingObject)
 }
 const getOneById = (req, res) => {
     const id = req.params.id
     const post = posts.filter(posts => posts.id == id)
     res.json(post)
 }
+
 const update = (req, res) => {
     const id = req.params.id
     let postId = posts.findIndex((posts => posts.id === id));
     let post = (req.body)
-    validate (req, 'Post to modify not found')
+    validate(req, 'Post to modify not found')
     post.id = id
     posts[postId] = post
     res.status(200).json(posts);

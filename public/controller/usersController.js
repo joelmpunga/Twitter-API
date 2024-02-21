@@ -1,8 +1,25 @@
 const jwt = require('jsonwebtoken');
-const users = require('../model/usersModel');
+const { getOneUser, getAllUsers,createUser} = require('../model/usersModel');
 const { json } = require('express');
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+let users = getAllUsers()
+const dotenv = require('dotenv');
+dotenv.config();
 const getAll = (req, res) => {
-    res.status(200).json(posts)
+    res.status(200).json(users)
+}
+
+const create = (req, res) => {
+    createUser()
+    users = getAllUsers()
+    res.status(200).json(users)
+}
+
+const getOneById = (req, res) => {
+    const id = req.params.id
+    const user = posts.filter(users => posts.id == id)
+    res.json(post)
 }
 
 
@@ -28,4 +45,4 @@ const authenticateToken = (req, res, next) => {
     })
 }
 
-module.exports = { generateTokens, connexion, authenticateToken, getAll }
+module.exports = { generateTokens, connexion, authenticateToken, getAll,create }
