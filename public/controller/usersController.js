@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const jwt = require('jsonwebtoken');
-const { getOneUser, getAllUsers, createUser } = require('../model/usersModel');
+const { getOneUser, getAllUsers } = require('../model/usersModel');
 const { json } = require('express');
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
@@ -9,31 +9,59 @@ const session = require('express-session')
 let users = getAllUsers()
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser')
+const bcrypt = require('bcrypt')
 app.use(cookieParser())
 dotenv.config();
 
-
 const getAll = async (req, res) => {
     const getUsers = await prisma.users.findMany().then()
-    res.json(getUsers);
     return getUsers
 }
 
-app.use(session({
-    secret: 'keyboard cat',
-    resave: false,
-    saveUninitialized: true,
-}))
+const getAllWithResponse = async (req, res) => {
+    const getUsers = await prisma.users.findMany().then()
+    return res.json(getUsers)
+}
 
-const create = (req, res) => {
-    createUser()
-    users = getAllUsers()
-    res.status(200).json(users)
+// const create = (req, res) => {
+//     createUser()
+//     users = getAllUsers()
+//     res.status(200).json(users)
+// }
+
+const createUser = async (req, res) => {
+    const { name, email, password, username, profil } = req.body
+    const allUsers = await getAll(req, res).then()
+    const user = allUsers.find((user) => user.username === username || user.email === email)
+    if (user) {
+        const passwordHashed = await bcrypt.compare(password, user.password)
+        if (passwordHashed) {
+            res.status(401).json({ "message": "This password and username already exist." })
+        }
+        else {
+            return res.status(401).json({ "message": "This password and username already exist." })
+        }
+    }
+    bcrypt.genSalt(10, async function (err, salt) {
+        bcrypt.hash(password, salt, async function (err, hash) {
+            const users = await prisma.users.create({
+                data: {
+                    name: name,
+                    email: email,
+                    username: username,
+                    password: hash,
+                    profil: profil,
+                }
+            }
+            )
+            console.log(users);
+            res.json(users)
+        });
+    })
 }
 
 async function getOneUserExec(req, res) {
     let idUser = Number(req.params.id);
-    console.log(idUser);
     const getOne = await prisma.users.findFirst({
         where: {
             id: {
@@ -42,7 +70,6 @@ async function getOneUserExec(req, res) {
         }
     }).then()
     res.json(getOne);
-    console.log(getOne);
     return getOne
 }
 
@@ -99,13 +126,25 @@ function userAuthToken(req, res) {
     }
 }
 
-const connexion = (req, res) => {
-    const token = getCookie(req, 'token');
-    if (token) {
-        const user = verifyToken(token);
-        const token = generateTokens(user);
-        sendToken(res, token)
-        res.status(200).json(token)
+const connexion = async (req, res) => {
+    const users = await getAll(req, res).then()
+    const { username, password } = req.body
+    if (username && password) {
+        const user = users.find((user) => user.username === username)
+        if (user) {
+            const passwordHashed = await bcrypt.compare(password, user.password)
+            if (passwordHashed) {
+                req.session.idUser = user.id
+                // const token = getToken(req);
+                // if (token) {
+                //     const user = verifyToken(token);
+                //     const token = generateTokens(user);
+                //     sendToken(res, token)
+                //     res.status(200).json(token)
+                // }
+                res.json(req.session)
+            }
+        }
     }
 }
 
@@ -122,4 +161,10 @@ const authenticateToken = (req, res, next) => {
     })
 }
 
-module.exports = { getOneUserExec, generateTokens, connexion, authenticateToken, getAll, create, userAuthToken, getCookie }
+const isAuthenticated = (req, res, next) => {
+    console.log('session', req.session);
+    if (req.session.idUser) next()
+    else return res.status(403).json("Not authenticated");
+}
+
+module.exports = {getAllWithResponse, isAuthenticated, getOneUserExec, generateTokens, connexion, authenticateToken, getAll, userAuthToken, getCookie, createUser }

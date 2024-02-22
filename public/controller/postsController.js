@@ -8,22 +8,30 @@ const prisma = new PrismaClient()
 
 const getAll = async (req, res) => {
     const getPosts = await prisma.posts.findMany().then()
-    res.json(getPosts);
     return getPosts
-      
 }
 
-const save = async(req, res) => {
+const getAllWithResponse = async (req, res) => {
+    const getPosts = await prisma.posts.findMany().then()
+    return res.json(getPosts)
+}
+
+const save = async (req, res) => {
     const post = req.body
+    const { text, image } = req.body
     const id = uuidv4()
     post.id = id
     post.like = 0
     post.repost = 0
     post.userId = req.body.userId
-    post.text = req.body.text
-    post.image = req.body.image
+    post.text = text
+    post.image = image
+    let ident = req.session.idUser
+    if (!ident) {
+        return res.status(401).json({ "message": "Vous n'etes plus connecté" })
+    }
     //idUser vaut 1 cette données doit changer
-    createPost(1, id).catch((e) => {
+    createPost(ident, id).catch((e) => {
         throw e;
     })
     res.json(post)
@@ -42,34 +50,103 @@ const getOneById = (req, res) => {
     res.json(post)
 }
 
-const update = (req, res) => {
-    const id = req.params.id
-    let postId = posts.findIndex((posts => posts.id === id));
-    let post = (req.body)
-    validate(req, 'Post to modify not found')
-    post.id = id
-    posts[postId] = post
-    res.status(200).json(posts);
-}
-const like = (req, res) => {
-    const id = req.params.id
-    let postId = posts.findIndex((posts => posts.id === id));
-    if (postId === (-1)) {
-        return res.status(400).send('Post to like not found');
+const update = async (req, res) => {
+    let idPost = req.params.id
+    const posts = await prisma.posts.update({
+        where: {
+            id:
+            {
+                equals: idPost
+            }
+        },
+        data: {
+            userId: idUser,
+            text: "Hello everyone, i want to explain to you my main ideas modified",
+            image: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
+        }
     }
-    posts[postId].like += 1
-    res.status(200).json(posts);
+    ).then()
+    res.json(posts)
+    return posts
 }
 
-const delike = (req, res) => {
-    const id = req.params.id
-    let postId = posts.findIndex((posts => posts.id === id));
-    if (postId === (-1)) {
-        return res.status(400).send('Post to delike not found');
+
+const like = async (req, res) => {
+    let idPost = req.params.id
+    let allPosts = await getAll(req, res).then()
+    let currentLikes = allPosts.find((post => post.id === idPost))
+    console.log("the post ", currentLikes, typeof idPost);
+    if (currentLikes) {
+        const idPostString = idPost.toString();
+        const posts = await prisma.posts.update({
+            where: {
+                id: idPostString,
+            },
+            data: {
+                like: currentLikes.like + 1,
+            }
+        }
+        ).then()
+        allPosts = await getAll(req, res).then()
+        return res.status(200).json(allPosts)
     }
-    posts[postId].like -= 1
-    res.status(200).json(posts);
+    else {
+        return res.status(400).send('Post to like not found');
+    }
 }
+
+const delike = async (req, res) => {
+    let idPost = req.params.id
+    let allPosts = await getAll(req, res).then()
+    let currentLikes = allPosts.find((post => post.id === idPost))
+    console.log("the post ", currentLikes, typeof idPost);
+    if (currentLikes) {
+        const idPostString = idPost.toString();
+        const posts = await prisma.posts.update({
+            where: {
+                id: idPostString,
+            },
+            data: {
+                like: currentLikes.like - 1,
+            }
+        }
+        ).then()
+        allPosts = await getAll(req, res).then()
+        return res.status(200).json(allPosts)
+    }
+    else {
+        return res.status(400).send('Post to like not found');
+    }
+}
+
+// const update = (req, res) => {
+//     const id = req.params.id
+//     let postId = posts.findIndex((posts => posts.id === id));
+//     let post = (req.body)
+//     validate(req, 'Post to modify not found')
+//     post.id = id
+//     posts[postId] = post
+//     res.status(200).json(posts);
+// }
+// const like = (req, res) => {
+//     const id = req.params.id
+//     let postId = posts.findIndex((posts => posts.id === id));
+//     if (postId === (-1)) {
+//         return res.status(400).send('Post to like not found');
+//     }
+//     posts[postId].like += 1
+//     res.status(200).json(posts);
+// }
+
+// const delike = (req, res) => {
+//     const id = req.params.id
+//     let postId = posts.findIndex((posts => posts.id === id));
+//     if (postId === (-1)) {
+//         return res.status(400).send('Post to delike not found');
+//     }
+//     posts[postId].like -= 1
+//     res.status(200).json(posts);
+// }
 
 const repost = (req, res) => {
     const id = req.params.id
@@ -94,4 +171,4 @@ const validate = (req, textOnError) => {
         return res.status(400).send(textOnError);
     }
 }
-module.exports = { getAll, getOneById, save, update, deleteOneById, like, repost }
+module.exports = { getAll, getAllWithResponse, getOneById, save, update, deleteOneById, like, repost, delike }

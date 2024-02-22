@@ -46,24 +46,7 @@ const User = userConnexion(username,password).then().catch((e)=>{
       await prisma.$disconnect();
     });
 
-async function createUser() {
-    bcrypt.genSalt (10, function (err, salt) {
-        bcrypt.hash("john1234", salt, function (err, hash) {
-            console.log(hash);
-        });
-    })
-    const users = await prisma.users.create({
-        data: {
-            name: 'John Doe',
-            email: 'doe@example.com',
-            username: 'doe24',
-            password: 'john1234',
-            profil: 'https://pbs.twimg.com/profile_images/1136589142035521536/6Y2g5se__400x400.png',
-        }
-    }
-    )
-    console.log(users);
-}
+
 
 // createUser().then(console.log).catch((e)=>{
 //   throw e;
@@ -82,4 +65,4 @@ const users = {
     "Joined": "Joined October 2011"
 }
 
-module.exports = { getOneUser, getAllUsers,createUser,userConnexion,User}
+module.exports = { getOneUser, getAllUsers,userConnexion,User}
