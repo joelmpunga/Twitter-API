@@ -9,6 +9,6 @@ router.post('',multer,save)
 router.put('/:id',multer,update)
 router.delete('/:id',deleteOneById)
 router.put('/like/:id',like)
-router.put('/delike/:id',like)
+router.put('/delike/:id',delike)
 router.put('/repost/:id',repost)
 module.exports = router

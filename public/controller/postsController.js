@@ -75,7 +75,6 @@ const like = async (req, res) => {
     let idPost = req.params.id
     let allPosts = await getAll(req, res).then()
     let currentLikes = allPosts.find((post => post.id === idPost))
-    console.log("the post ", currentLikes, typeof idPost);
     if (currentLikes) {
         const idPostString = idPost.toString();
         const posts = await prisma.posts.update({
@@ -99,7 +98,6 @@ const delike = async (req, res) => {
     let idPost = req.params.id
     let allPosts = await getAll(req, res).then()
     let currentLikes = allPosts.find((post => post.id === idPost))
-    console.log("the post ", currentLikes, typeof idPost);
     if (currentLikes) {
         const idPostString = idPost.toString();
         const posts = await prisma.posts.update({
@@ -115,7 +113,7 @@ const delike = async (req, res) => {
         return res.status(200).json(allPosts)
     }
     else {
-        return res.status(400).send('Post to like not found');
+        return res.status(400).send('Post to delike not found');
     }
 }
 

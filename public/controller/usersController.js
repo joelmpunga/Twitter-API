@@ -14,8 +14,7 @@ app.use(cookieParser())
 dotenv.config();
 
 const getAll = async (req, res) => {
-    const getUsers = await prisma.users.findMany().then()
-    return getUsers
+    return getUsers = await prisma.users.findMany().then()
 }
 
 const getAllWithResponse = async (req, res) => {
@@ -100,31 +99,35 @@ function sendToken(res, token) {
     res.cookie('token', token, options)
 }
 
-function getToken(req) {
+function getToken(req,res) {
     const token = req.cookies.token;
     return token;
 }
 
-function getCookie(req, name) {
-    let cookie = req.headers.cookie;
-    let pairs = cookie.split(';');
-    for (let i = 0; i < pairs.length; i++) {
-        let pair = pairs[i].trim().split('=');
-        if (pair[0] === name) {
-            return pair[1];
-        }
-    }
-    return null
-}
+// function getCookie(req, name) {
+//     let cookie = req.headers.cookie;
+//     let pairs = cookie.split(';');
+//     for (let i = 0; i < pairs.length; i++) {
+//         let pair = pairs[i].trim().split('=');
+//         if (pair[0] === name) {
+//             return pair[1];
+//         }
+//     }
+//     return null
+// }
 
-function userAuthToken(req, res) {
+const userAuthToken = async(req, res) => {
     const user = req.body;
-    if (user.username == "doe" && user.password == "doe1234") {
+    const idUser = req.session.idUser
+    const userBdd = await getOneUser(idUser).then()
+    console.log(userBdd);
+    if (user.username == userBdd.username && user.password == userBdd.password) {
         const token = generateTokens(user);
         sendToken(res, token)
         res.status(200).json(token)
     }
 }
+
 
 const connexion = async (req, res) => {
     const users = await getAll(req, res).then()
@@ -135,16 +138,12 @@ const connexion = async (req, res) => {
             const passwordHashed = await bcrypt.compare(password, user.password)
             if (passwordHashed) {
                 req.session.idUser = user.id
-                // const token = getToken(req);
-                // if (token) {
-                //     const user = verifyToken(token);
-                //     const token = generateTokens(user);
-                //     sendToken(res, token)
-                //     res.status(200).json(token)
-                // }
+                const token = jwt.sign({username,password},process.env.TOKEN_SECRET_KEY)
+                user.token = token
                 res.json(req.session)
             }
         }
+        res.redirect("http://localhost:5173/login")
     }
 }
 
@@ -167,4 +166,4 @@ const isAuthenticated = (req, res, next) => {
     else return res.status(403).json("Not authenticated");
 }
 
-module.exports = {getAllWithResponse, isAuthenticated, getOneUserExec, generateTokens, connexion, authenticateToken, getAll, userAuthToken, getCookie, createUser }
+module.exports = {getAllWithResponse, isAuthenticated, getOneUserExec, generateTokens, connexion, authenticateToken, getAll, userAuthToken, createUser }

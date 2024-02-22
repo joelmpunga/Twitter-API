@@ -9,7 +9,10 @@ const app = express()
 const getOneUser = async(idUser) =>{
     const getOne = await prisma.users.findFirst({
         where: {
-            id: idUser,
+            id:
+            {
+                equals: idUser,
+            }
         }
     }).then()
     return getOne
