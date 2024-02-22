@@ -130,20 +130,21 @@ const userAuthToken = async(req, res) => {
 
 
 const connexion = async (req, res) => {
-    const users = await getAll(req, res).then()
+    users = await prisma.users.findMany().then()
     const { username, password } = req.body
     if (username && password) {
-        const user = users.find((user) => user.username === username)
+        const user = await users.find((user) => user.username === username)
         if (user) {
             const passwordHashed = await bcrypt.compare(password, user.password)
             if (passwordHashed) {
                 req.session.idUser = user.id
                 const token = jwt.sign({username,password},process.env.TOKEN_SECRET_KEY)
                 user.token = token
-                res.json(req.session)
+                return res.redirect("http://localhost:5173/")
+                //res.json(req.session)
             }
         }
-        res.redirect("http://localhost:5173/login")
+        return res.redirect("http://localhost:5173/login?"+{"error":"incorrect login"})
     }
 }
 
