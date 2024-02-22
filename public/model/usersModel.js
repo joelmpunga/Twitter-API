@@ -6,12 +6,13 @@ const express = require('express')
 
 const app = express()
 
-async function getOneUser(idUser) {
+const getOneUser = async(idUser) =>{
     const getOne = await prisma.users.findFirst({
         where: {
             id: idUser,
         }
     }).then()
+    return getOne
 }
 
 const verifPassword  = (password,hash) => {

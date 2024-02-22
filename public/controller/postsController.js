@@ -8,10 +8,12 @@ const prisma = new PrismaClient()
 
 const getAll = async (req, res) => {
     const getPosts = await prisma.posts.findMany().then()
-    res.json(getPosts)
+    res.json(getPosts);
+    return getPosts
+      
 }
 
-const save = (req, res) => {
+const save = async(req, res) => {
     const post = req.body
     const id = uuidv4()
     post.id = id
@@ -24,11 +26,7 @@ const save = (req, res) => {
     createPost(1, id).catch((e) => {
         throw e;
     })
-        .finally(async () => {
-            await prisma.$disconnect();
-        })
-    getAll()
-    res.status(201).json(posts)
+    res.json(post)
     // if (post.title.length < 3 || post.body.length < 3 || post.url.match(/[\z]/) || post.thumbnailsUrl.match(/[\z]/)) {
     //     return res.status(400).send('Post not  ');
     // }

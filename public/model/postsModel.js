@@ -23,11 +23,12 @@ async function createPost(idUser, idPost) {
 //createPost(idUser).then(console.log)
 
 async function getAllPosts () {
+    
     console.log("GET ALL AVANT")
     return getPosts
 }
 async function getOnePost(idPost) {
-    const getOne = await prisma.posts.findUnique({
+    const getOne = await prisma.posts.findFirst({
         where: {
             id: idUser
         }

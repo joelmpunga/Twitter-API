@@ -8,9 +8,15 @@ const prisma = new PrismaClient()
 const session = require('express-session')
 let users = getAllUsers()
 const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
 dotenv.config();
-const getAll = (req, res) => {
-    res.status(200).json(users)
+
+
+const getAll = async (req, res) => {
+    const getUsers = await prisma.users.findMany().then()
+    res.json(getUsers);
+    return getUsers
 }
 
 app.use(session({
@@ -25,6 +31,21 @@ const create = (req, res) => {
     res.status(200).json(users)
 }
 
+async function getOneUserExec(req, res) {
+    let idUser = Number(req.params.id);
+    console.log(idUser);
+    const getOne = await prisma.users.findFirst({
+        where: {
+            id: {
+                equals: idUser,
+            }
+        }
+    }).then()
+    res.json(getOne);
+    console.log(getOne);
+    return getOne
+}
+
 const getOneById = (req, res) => {
     const id = req.params.id
     const user = posts.filter(users => posts.id == id)
@@ -34,22 +55,20 @@ const getOneById = (req, res) => {
 
 function generateTokens(user) {
     const payload = {
-        id: user.id,
         username: user.username,
         password: user.password
     }
     return jwt.sign(payload, process.env.TOKEN_SECRET_KEY, { expiresIn: '1800s' });
 }
 
-function verifyToken (token) {
-    return  decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
+function verifyToken(token) {
+    return decoded = jwt.verify(token, process.env.TOKEN_SECRET_KEY)
 }
 
-function sendToken (res,token) {
+function sendToken(res, token) {
     const options = {
         httpOnly: true,
-        secure: true,
-        maxAge: 60*60*1000
+        maxAge: 60 * 60 * 1000
     };
     res.cookie('token', token, options)
 }
@@ -59,26 +78,35 @@ function getToken(req) {
     return token;
 }
 
-const connexion = (req, res) => {
-    const token = generateTokens({id:req.body.id, username: req.body.username, password: req.body.password })
-    const secret = process.env.TOKEN_SECRET_KEY;
-    const payload = jwt.verify(token, secret)
-    console.log(payload.password, password, payload.username, username);
-    if (payload.password === password || payload.username === username) {
+function getCookie(req, name) {
+    let cookie = req.headers.cookie;
+    let pairs = cookie.split(';');
+    for (let i = 0; i < pairs.length; i++) {
+        let pair = pairs[i].trim().split('=');
+        if (pair[0] === name) {
+            return pair[1];
+        }
+    }
+    return null
+}
+
+function userAuthToken(req, res) {
+    const user = req.body;
+    if (user.username == "doe" && user.password == "doe1234") {
+        const token = generateTokens(user);
+        sendToken(res, token)
         res.status(200).json(token)
     }
-    else {
-        res.status(401).json("Bad Request")
+}
+
+const connexion = (req, res) => {
+    const token = getCookie(req, 'token');
+    if (token) {
+        const user = verifyToken(token);
+        const token = generateTokens(user);
+        sendToken(res, token)
+        res.status(200).json(token)
     }
-    // req.session.regenerate(function (err) {
-    //     if (err) next(err)
-    //     req.session.user = req.body.user
-    //     req.session.save(function (err) {
-    //         if (err) return next(err)
-    //         res.status(200).json(req.session.user + " est le token est " + token)
-    //     })
-    // })
-    res.status(200).json(token)
 }
 
 const authenticateToken = (req, res, next) => {
@@ -94,4 +122,4 @@ const authenticateToken = (req, res, next) => {
     })
 }
 
-module.exports = { generateTokens, connexion, authenticateToken, getAll, create }
+module.exports = { getOneUserExec, generateTokens, connexion, authenticateToken, getAll, create, userAuthToken, getCookie }
