@@ -86,10 +86,12 @@ const like = async (req, res) => {
             }
         }
         ).then()
+        return res.redirect("http://localhost:5173/")
         allPosts = await getAll(req, res).then()
         return res.status(200).json(allPosts)
     }
     else {
+        return res.redirect("http://localhost:5173/")
         return res.status(400).send('Post to like not found');
     }
 }

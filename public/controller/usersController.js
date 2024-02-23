@@ -42,7 +42,7 @@ const createUser = async (req, res) => {
         }
     }
     bcrypt.genSalt(10, async function (err, salt) {
-        bcrypt.hash(password, salt, async function (err, hash) {
+        bcrypt.hash('john12345', salt, async function (err, hash) {
             const users = await prisma.users.create({
                 data: {
                     name: name,
@@ -53,7 +53,7 @@ const createUser = async (req, res) => {
                 }
             }
             )
-            console.log(users);
+            console.log(users.password);
             res.json(users)
         });
     })
@@ -144,7 +144,7 @@ const connexion = async (req, res) => {
                 //res.json(req.session)
             }
         }
-        return res.redirect("http://localhost:5173/login?"+{"error":"incorrect login"})
+        return res.redirect("http://localhost:5173/login")
     }
 }
 
