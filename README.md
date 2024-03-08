@@ -43,3 +43,5 @@
 ### To install a package dependencies we need to type npm install --save
 ### To install a package one by one, we need to type npm install *name* --save
 
+### LAUNCH THE PROJECT 
+

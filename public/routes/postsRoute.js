@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { getAll, getAllWithResponse, getOneById, save, update, deleteOneById, like, repost,delike }=require('../controller/postsController.js')
-const {isAuthenticated} = require('../controller/usersController.js')
+const { getOnePostExec, getAllWithResponse,save, update, like,delike }=require('../controller/postsController.js')
+const {authenticateToken} = require('../controller/usersController.js')
 const multer = require('../middleware/multer-config-middleware');
-router.get('/:id',getOneById)
-router.get('',getAllWithResponse)
-router.post('',multer,save)
-router.put('/:id',multer,update)
-router.delete('/:id',deleteOneById)
-router.get('/like/:id',like)
-router.get('/delike/:id',delike)
-router.put('/repost/:id',repost)
+router.get('',authenticateToken,getAllWithResponse)
+router.get('/:id',authenticateToken,getOnePostExec)
+router.post('',authenticateToken,multer,save)
+router.put('/:id',authenticateToken,multer,update)
+//router.delete('/:id',authenticateToken,deleteOneById)
+router.put('/like/:id',authenticateToken,like)
+router.put('/delike/:id',authenticateToken,delike)
+//router.put('/repost/:id',authenticateToken,repost)
 module.exports = router

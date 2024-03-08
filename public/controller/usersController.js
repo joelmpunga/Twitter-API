@@ -14,23 +14,32 @@ app.use(cookieParser())
 dotenv.config();
 
 const getAll = async (req, res) => {
-    return getUsers = await prisma.users.findMany().then()
+    return getUsers = await prisma.users.findMany().then().catch((e)=>{
+        throw e;
+      })
+      .finally(async ()=>{
+        await prisma.$disconnect();
+      });
 }
 
 const getAllWithResponse = async (req, res) => {
-    const getUsers = await prisma.users.findMany().then()
+    const getUsers = await prisma.users.findMany().then().catch((e)=>{
+        throw e;
+      })
+      .finally(async ()=>{
+        await prisma.$disconnect();
+      });
     return res.json(getUsers)
 }
 
-// const create = (req, res) => {
-//     createUser()
-//     users = getAllUsers()
-//     res.status(200).json(users)
-// }
-
 const createUser = async (req, res) => {
     const { name, email, password, username, profil } = req.body
-    const allUsers = await getAll(req, res).then()
+    const allUsers = await getAll(req, res).then().catch((e)=>{
+        throw e;
+      })
+      .finally(async ()=>{
+        await prisma.$disconnect();
+      });
     const user = allUsers.find((user) => user.username === username || user.email === email)
     if (user) {
         const passwordHashed = await bcrypt.compare(password, user.password)
@@ -52,8 +61,12 @@ const createUser = async (req, res) => {
                     profil: profil,
                 }
             }
-            )
-            console.log(users.password);
+            ).catch((e)=>{
+                throw e;
+              })
+              .finally(async ()=>{
+                await prisma.$disconnect();
+              });
             res.json(users)
         });
     })
@@ -67,15 +80,14 @@ async function getOneUserExec(req, res) {
                 equals: idUser,
             }
         }
-    }).then()
+    }).then().catch((e)=>{
+        throw e;
+      })
+      .finally(async ()=>{
+        await prisma.$disconnect();
+      });
     res.json(getOne);
     return getOne
-}
-
-const getOneById = (req, res) => {
-    const id = req.params.id
-    const user = posts.filter(users => posts.id == id)
-    res.json(post)
 }
 
 
@@ -99,7 +111,7 @@ function sendToken(res, token) {
     res.cookie('token', token, options)
 }
 
-function getToken(req,res) {
+function getToken(req, res) {
     const token = req.cookies.token;
     return token;
 }
@@ -116,55 +128,63 @@ function getToken(req,res) {
 //     return null
 // }
 
-const userAuthToken = async(req, res) => {
-    const user = req.body;
-    const idUser = req.session.idUser
-    const userBdd = await getOneUser(idUser).then()
-    console.log(userBdd);
-    if (user.username == userBdd.username && user.password == userBdd.password) {
-        const token = generateTokens(user);
-        sendToken(res, token)
-        res.status(200).json(token)
-    }
-}
-
 
 const connexion = async (req, res) => {
-    users = await prisma.users.findMany().then()
     const { username, password } = req.body
+    if (!username) return res.status(403).json({ message: "No information provided" })
+    const user = await prisma.users.findFirst(
+        {
+            where: {
+                username: username,
+            }
+        }
+    ).then().catch((e)=>{
+        throw e;
+      })
+      .finally(async ()=>{
+        await prisma.$disconnect();
+      });
     if (username && password) {
-        const user = await users.find((user) => user.username === username)
         if (user) {
             const passwordHashed = await bcrypt.compare(password, user.password)
             if (passwordHashed) {
                 req.session.idUser = user.id
-                const token = jwt.sign({username,password},process.env.TOKEN_SECRET_KEY)
+                const token = jwt.sign({ username, password }, process.env.TOKEN_SECRET_KEY)
                 user.token = token
-                return res.redirect("http://localhost:5173/")
-                //res.json(req.session)
+                req.session.token = token
+                sendToken(res, token)
+                //return res.redirect("http://localhost:5173/")
+                res.json(req.session)
             }
         }
-        return res.redirect("http://localhost:5173/login")
+        //return res.redirect("http://localhost:5173/login")
     }
 }
 
 const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    if (!authHeader) return res.sendStatus(401)
-    const token = authHeader && authHeader.split(' ')[1]
-    if (token == null) return res.sendStatus(401)
-    jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, user) => {
-        console.log(err)
-        if (err) return res.sendStatus(403)
-        req.user = user
-        next()
-    })
+    if (req.session.token) {
+        jwt.verify(req.session.token, process.env.TOKEN_SECRET_KEY, (err, user) => {
+            if (err) return res.status(403).json({ "message": "An error occurred while verifying" })
+            req.user = user
+            next()
+        })
+    }
+    else {
+        const authHeader = req.headers['authorization']
+        if (!authHeader) return res.status(401).json({ "message": "Not authenticated  or authorization low to acces to this ressources" })
+        const token = authHeader && authHeader.split(' ')[1]
+        if (token == null) return res.status(401).json({ "message": "You're not allow to access" })
+        jwt.verify(token, process.env.TOKEN_SECRET_KEY, (err, user) => {
+            if (err) return res.status(403).json({ "message": "An error occurred while verifying" })
+            req.user = user
+            next()
+        })
+    }
 }
 
 const isAuthenticated = (req, res, next) => {
-    console.log('session', req.session);
     if (req.session.idUser) next()
     else return res.status(403).json("Not authenticated");
 }
 
-module.exports = {getAllWithResponse, isAuthenticated, getOneUserExec, generateTokens, connexion, authenticateToken, getAll, userAuthToken, createUser }
+module.exports = { getAllWithResponse, isAuthenticated, getOneUserExec, generateTokens, connexion, authenticateToken, getAll, createUser }

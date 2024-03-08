@@ -18,7 +18,7 @@ app.use(session({
   saveUninitialized: false,
   secret: process.env.SESSION_SECRET,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
+    maxAge: 1000 * 60 * 60,
     secure: false,
   }
 }))
@@ -26,10 +26,8 @@ app.use(session({
 app.use(async (req, res,next) => {
   const {idUser} = req.session;
   const users = await getAll(req,res).then()
-  console.log(users);
   if(idUser){
     res.locals.user = users.find(user => user.id === idUser)
-    console.log(res.locals.user);
   }
   next()
 })
@@ -37,11 +35,9 @@ app.use(async (req, res,next) => {
 app.use(express.urlencoded({ extended: true }))
 app.use('/posts', require('./public/routes/postsRoute.js'))
 app.use('/users', require('./public/routes/usersRoute.js'))
-//app.use('/users',userAuthToken, require('./public/routes/usersRoute.js'))
 
 app.use(cookieParser())
 app.get('/',(req,res)=>{
-  console.log('session',req.session)
   res.json(req.session)
 })
 
